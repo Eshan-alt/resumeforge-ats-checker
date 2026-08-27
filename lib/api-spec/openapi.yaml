@@ -1,0 +1,563 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: ATS Resume Builder API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: resumes
+    description: Resume operations
+  - name: analyses
+    description: Authenticated ATS resume analysis operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /resumes:
+    get:
+      operationId: listResumes
+      tags: [resumes]
+      summary: List all resumes
+      responses:
+        "200":
+          description: List of resume summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResumeSummary"
+    post:
+      operationId: createResume
+      tags: [resumes]
+      summary: Create a new resume
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResumeInput"
+      responses:
+        "201":
+          description: Created resume
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resume"
+
+  /resumes/{id}:
+    get:
+      operationId: getResume
+      tags: [resumes]
+      summary: Get a resume by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Resume
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resume"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateResume
+      tags: [resumes]
+      summary: Update a resume
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResumeInput"
+      responses:
+        "200":
+          description: Updated resume
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resume"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteResume
+      tags: [resumes]
+      summary: Delete a resume
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /resumes/{id}/score:
+    get:
+      operationId: getResumeScore
+      tags: [resumes]
+      summary: Get ATS score and tips for a resume
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ATS score and improvement tips
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResumeScore"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /analyses:
+    get:
+      operationId: listAnalyses
+      tags: [analyses]
+      responses:
+        "200":
+          description: Analysis summaries
+          content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/AnalysisSummary" } } } }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+    post:
+      operationId: createAnalysis
+      tags: [analyses]
+      description: Upload a PDF or DOCX resume and compare it with a job description.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, jobDescription]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                jobDescription:
+                  type: string
+                  minLength: 1
+                  maxLength: 50000
+      responses:
+        "201": { description: Created analysis, content: { application/json: { schema: { $ref: "#/components/schemas/Analysis" } } } }
+        "400": { description: Invalid upload, content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+  /analyses/{id}:
+    get:
+      operationId: getAnalysis
+      tags: [analyses]
+      parameters: [ { $ref: "#/components/parameters/AnalysisId" } ]
+      responses:
+        "200": { description: Analysis, content: { application/json: { schema: { $ref: "#/components/schemas/Analysis" } } } }
+        "404": { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+    delete:
+      operationId: deleteAnalysis
+      tags: [analyses]
+      parameters: [ { $ref: "#/components/parameters/AnalysisId" } ]
+      responses:
+        "204": { description: Deleted }
+        "404": { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+  /analyses/{id}/ai-suggestions:
+    post:
+      operationId: generateAnalysisAiSuggestions
+      tags: [analyses]
+      parameters: [ { $ref: "#/components/parameters/AnalysisId" } ]
+      responses:
+        "200": { description: AI suggestions, content: { application/json: { schema: { $ref: "#/components/schemas/AiSuggestions" } } } }
+        "404": { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+        "502": { description: AI unavailable, content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+  /analyses/{id}/rewrite-bullet:
+    post:
+      operationId: rewriteAnalysisBullet
+      tags: [analyses]
+      parameters: [ { $ref: "#/components/parameters/AnalysisId" } ]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/BulletRewriteInput" } } }
+      responses:
+        "200": { description: Rewrite result, content: { application/json: { schema: { $ref: "#/components/schemas/BulletRewrite" } } } }
+        "400": { description: Invalid bullet, content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+        "404": { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+  /analyses/{id}/report:
+    get:
+      operationId: downloadAnalysisReport
+      tags: [analyses]
+      parameters: [ { $ref: "#/components/parameters/AnalysisId" } ]
+      responses:
+        "200": { description: Downloadable self-contained HTML report, content: { text/html: { schema: { type: string } } } }
+        "404": { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+
+components:
+  parameters:
+    AnalysisId:
+      name: id
+      in: path
+      required: true
+      schema: { type: number }
+  schemas:
+    AnalysisSummary:
+      type: object
+      required: [id, filename, mimeType, status, overallScore, createdAt, updatedAt]
+      properties:
+        id: { type: number }
+        filename: { type: string }
+        mimeType: { type: string }
+        status: { type: string }
+        overallScore: { type: number }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+    ParsedSections:
+      type: object
+      required: [contact, summary, skills, experience, education, certifications, projects]
+      properties:
+        contact: { type: array, items: { type: string } }
+        summary: { type: string }
+        skills: { type: array, items: { type: string } }
+        experience: { type: array, items: { type: string } }
+        education: { type: array, items: { type: string } }
+        certifications: { type: array, items: { type: string } }
+        projects: { type: array, items: { type: string } }
+    DeterministicResults:
+      type: object
+      required: [overallScore, categoryScores, matchedKeywords, missingKeywords, matchedSkills, missingSkills, formattingIssues, sectionChecks, keywordDensity, actionVerbObservations]
+      properties:
+        overallScore: { type: number }
+        categoryScores: { type: object, additionalProperties: { type: number } }
+        matchedKeywords: { type: array, items: { type: string } }
+        missingKeywords: { type: array, items: { type: string } }
+        matchedSkills: { type: array, items: { type: string } }
+        missingSkills: { type: array, items: { type: string } }
+        formattingIssues: { type: array, items: { type: string } }
+        sectionChecks: { type: object, additionalProperties: { type: boolean } }
+        keywordDensity: { type: number }
+        actionVerbObservations: { type: array, items: { type: string } }
+    AiSuggestions:
+      type: object
+      required: [improvements, strongerActionVerbs, optimizedSummary, missingKeywordRecommendations, rewrittenWeakBullets]
+      properties:
+        improvements: { type: array, items: { type: string } }
+        strongerActionVerbs: { type: array, items: { type: string } }
+        optimizedSummary: { type: string }
+        missingKeywordRecommendations: { type: array, items: { type: string } }
+        rewrittenWeakBullets: { type: array, items: { type: string } }
+    Analysis:
+      allOf:
+        - $ref: "#/components/schemas/AnalysisSummary"
+        - type: object
+          required: [extractedText, jobDescription, parsedSections, deterministicResults]
+          properties:
+            extractedText: { type: string }
+            jobDescription: { type: string }
+            parsedSections: { $ref: "#/components/schemas/ParsedSections" }
+            deterministicResults: { $ref: "#/components/schemas/DeterministicResults" }
+            aiSuggestions: { anyOf: [ { $ref: "#/components/schemas/AiSuggestions" }, { type: "null" } ] }
+    BulletRewriteInput:
+      type: object
+      required: [bullet]
+      properties: { bullet: { type: string, minLength: 1, maxLength: 2000 } }
+    BulletRewrite:
+      type: object
+      required: [rewrittenBullet]
+      properties: { rewrittenBullet: { type: string } }
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    PersonalInfo:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        location:
+          type: string
+        linkedIn:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        summary:
+          type: string
+      required:
+        - fullName
+        - email
+        - phone
+        - location
+        - summary
+
+    WorkExperience:
+      type: object
+      properties:
+        company:
+          type: string
+        title:
+          type: string
+        location:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: ["string", "null"]
+        isCurrent:
+          type: boolean
+        bullets:
+          type: array
+          items:
+            type: string
+      required:
+        - company
+        - title
+        - location
+        - startDate
+        - isCurrent
+        - bullets
+
+    Education:
+      type: object
+      properties:
+        school:
+          type: string
+        degree:
+          type: string
+        field:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: ["string", "null"]
+        gpa:
+          type: ["string", "null"]
+      required:
+        - school
+        - degree
+        - field
+        - startDate
+
+    SkillGroup:
+      type: object
+      properties:
+        category:
+          type: string
+        items:
+          type: array
+          items:
+            type: string
+      required:
+        - category
+        - items
+
+    Project:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        url:
+          type: ["string", "null"]
+        technologies:
+          type: array
+          items:
+            type: string
+        bullets:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - description
+        - technologies
+        - bullets
+
+    Certification:
+      type: object
+      properties:
+        name:
+          type: string
+        issuer:
+          type: string
+        date:
+          type: string
+        url:
+          type: ["string", "null"]
+      required:
+        - name
+        - issuer
+        - date
+
+    ResumeData:
+      type: object
+      properties:
+        personalInfo:
+          $ref: "#/components/schemas/PersonalInfo"
+        workExperience:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkExperience"
+        education:
+          type: array
+          items:
+            $ref: "#/components/schemas/Education"
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/SkillGroup"
+        projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/Project"
+        certifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Certification"
+      required:
+        - personalInfo
+        - workExperience
+        - education
+        - skills
+        - projects
+        - certifications
+
+    ResumeInput:
+      type: object
+      properties:
+        title:
+          type: string
+        data:
+          $ref: "#/components/schemas/ResumeData"
+      required:
+        - title
+        - data
+
+    Resume:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        data:
+          $ref: "#/components/schemas/ResumeData"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - data
+        - createdAt
+        - updatedAt
+
+    ResumeSummary:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - createdAt
+        - updatedAt
+
+    ScoreTip:
+      type: object
+      properties:
+        section:
+          type: string
+        message:
+          type: string
+        severity:
+          type: string
+          enum: [info, warning, error]
+      required:
+        - section
+        - message
+        - severity
+
+    ResumeScore:
+      type: object
+      properties:
+        score:
+          type: number
+        maxScore:
+          type: number
+        label:
+          type: string
+        tips:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScoreTip"
+      required:
+        - score
+        - maxScore
+        - label
+        - tips
