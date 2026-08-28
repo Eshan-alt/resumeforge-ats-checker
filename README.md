@@ -2,6 +2,16 @@
 
 ResumeForge is an evidence-based ATS resume builder and checker for job seekers. Build an ATS-friendly resume, compare an existing PDF or DOCX against a job description, understand the score, and improve the content without inventing qualifications.
 
+## Product preview
+
+<p align="center">
+  <img src="artifacts/ats-resume/public/logo.svg" alt="ResumeForge logo" width="96">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/resumeforge-landing.jpg" alt="ResumeForge landing page" width="960">
+</p>
+
 ## What it does
 
 - Build and preview structured ATS-friendly resumes.
