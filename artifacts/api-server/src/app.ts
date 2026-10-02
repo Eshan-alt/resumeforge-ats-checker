@@ -1,3 +1,4 @@
+import path from "node:path";
 import express, { type Express } from "express";
 import multer from "multer";
 import pinoHttp from "pino-http";
@@ -35,7 +36,7 @@ app.use(
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
+app.use("/api",
   clerkMiddleware((req) => ({
     publishableKey: publishableKeyFromHost(
       getClerkProxyHost(req) ?? "",
@@ -43,7 +44,13 @@ app.use(
     ),
   })),
 );
-app.use("/api", router);
+app.use("/api", (_req, res, next) => { res.setHeader("Cache-Control", "no-store"); next(); }, router);
+app.use("/api", (_req, res) => { res.status(404).json({ error: "API route not found" }); });
+if (process.env.STATIC_DIR) {
+  const staticDir = path.resolve(process.env.STATIC_DIR);
+  app.use(express.static(staticDir));
+  app.get("/{*path}", (_req, res) => { res.sendFile(path.join(staticDir, "index.html")); });
+}
 app.use((err: unknown, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
     res.status(400).json({ error: "File exceeds the 10 MB upload limit." });

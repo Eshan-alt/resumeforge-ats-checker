@@ -58,13 +58,12 @@ catalog:
 
 autoInstallPeers: false
 
-onlyBuiltDependencies:
-  - '@swc/core'
-  - esbuild
-  - msw
-  - unrs-resolver
 
 overrides:
   # Keep the vulnerable transitive loader on the workspace-supported tsx release.
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
   esbuild: "0.27.3"
+
+allowBuilds:
+  '@clerk/shared': false
+  esbuild: true

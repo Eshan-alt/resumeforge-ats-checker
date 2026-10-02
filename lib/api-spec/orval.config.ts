@@ -49,6 +49,7 @@ export default defineConfig({
     },
     output: {
       workspace: apiZodSrc,
+      indexFiles: false,
       client: "zod",
       target: "generated",
       schemas: { path: "generated/types", type: "typescript" },
@@ -57,6 +58,7 @@ export default defineConfig({
       prettier: true,
       override: {
         zod: {
+          version: 3,
           coerce: {
             query: ['boolean', 'number', 'string'],
             param: ['boolean', 'number', 'string'],

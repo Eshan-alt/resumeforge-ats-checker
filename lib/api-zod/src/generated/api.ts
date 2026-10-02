@@ -9,6 +9,51 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary getAccount
+ */
+export const GetAccountResponse = zod.object({
+  "userId": zod.string(),
+  "role": zod.enum(['user', 'admin'])
+})
+
+
+/**
+ * @summary getAdminOverview
+ */
+export const GetAdminOverviewResponse = zod.object({
+  "users": zod.number().int(),
+  "resumes": zod.number().int(),
+  "analyses": zod.number().int()
+})
+
+
+/**
+ * @summary getAdminUsers
+ */
+export const getAdminUsersQueryPageDefault = 1;
+export const getAdminUsersQueryPageMax = 100000;
+
+
+
+export const GetAdminUsersQueryParams = zod.object({
+  "page": zod.coerce.number().int().min(1).max(getAdminUsersQueryPageMax).default(getAdminUsersQueryPageDefault)
+})
+
+export const GetAdminUsersResponse = zod.object({
+  "users": zod.array(zod.object({
+  "userId": zod.string(),
+  "role": zod.enum(['user', 'admin']),
+  "createdAt": zod.coerce.date(),
+  "resumes": zod.number().int(),
+  "analyses": zod.number().int()
+})),
+  "page": zod.number().int(),
+  "pageSize": zod.number().int(),
+  "total": zod.number().int()
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

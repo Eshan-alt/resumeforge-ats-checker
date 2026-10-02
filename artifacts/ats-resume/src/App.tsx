@@ -1,77 +1,119 @@
-import { useEffect, useRef } from "react"
-import { ClerkProvider, SignIn, SignUp, Show, useClerk, ClerkLoaded } from "@clerk/react"
-import { publishableKeyFromHost } from "@clerk/react/internal"
-import { shadcn, dark } from "@clerk/themes"
-import { Route, Switch, useLocation, Router as WouterRouter, Redirect } from "wouter"
-import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query"
-import { Toaster } from "sonner"
+import { useEffect, useRef } from "react";
+import {
+  ClerkProvider,
+  SignIn,
+  SignUp,
+  Show,
+  useClerk,
+  ClerkLoaded,
+} from "@clerk/react";
+import { publishableKeyFromHost } from "@clerk/react/internal";
+import { shadcn, dark } from "@clerk/themes";
+import {
+  Route,
+  Switch,
+  useLocation,
+  Router as WouterRouter,
+  Redirect,
+} from "wouter";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { Toaster } from "sonner";
 
-import NotFound from "@/pages/not-found"
-import Dashboard from "@/pages/Dashboard"
-import ResumeForm from "@/pages/ResumeForm"
-import ResumePreview from "@/pages/ResumePreview"
-import Analyze from "@/pages/Analyze"
-import AnalysisDetails from "@/pages/AnalysisDetails"
-import History from "@/pages/History"
-import Landing from "@/pages/Landing"
-import { ThemeProvider, useTheme } from "@/components/theme-provider"
+import AppShell from "@/components/AppShell";
+import Admin from "@/pages/Admin";
+import Account from "@/pages/Account";
+import SavedResumes from "@/pages/SavedResumes";
 
-const queryClient = new QueryClient()
+import NotFound from "@/pages/not-found";
+import Dashboard from "@/pages/Dashboard";
+import ResumeForm from "@/pages/ResumeForm";
+import ResumePreview from "@/pages/ResumePreview";
+import Analyze from "@/pages/Analyze";
+import AnalysisDetails from "@/pages/AnalysisDetails";
+import History from "@/pages/History";
+import Landing from "@/pages/Landing";
+import { ThemeProvider, useTheme } from "@/components/theme-provider";
+
+const queryClient = new QueryClient();
 
 const clerkPubKey = publishableKeyFromHost(
   window.location.hostname,
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-)
+);
 
-const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, "")
+const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function stripBase(path: string): string {
   return basePath && path.startsWith(basePath)
     ? path.slice(basePath.length) || "/"
-    : path
+    : path;
 }
 
-if (!clerkPubKey) {
-  throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY in .env file")
+function AdminSignInPage() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
+      <h1 className="text-2xl font-serif">ResumeForge admin login</h1>
+      <p className="text-muted-foreground text-center">
+        Sign in with your administrator account.
+      </p>
+      <SignIn
+        routing="path"
+        path={`${basePath}/admin/sign-in`}
+        forceRedirectUrl={`${basePath}/admin`}
+      />
+    </div>
+  );
 }
 
 function SignInPage() {
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-muted/20 px-4">
-      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+      <SignIn
+        routing="path"
+        path={`${basePath}/sign-in`}
+        signUpUrl={`${basePath}/sign-up`}
+      />
     </div>
-  )
+  );
 }
 
 function SignUpPage() {
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-muted/20 px-4">
-      <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
+      <SignUp
+        routing="path"
+        path={`${basePath}/sign-up`}
+        signInUrl={`${basePath}/sign-in`}
+      />
     </div>
-  )
+  );
 }
 
 function ClerkQueryClientCacheInvalidator() {
-  const { addListener } = useClerk()
-  const queryClient = useQueryClient()
-  const prevUserIdRef = useRef<string | null | undefined>(undefined)
+  const { addListener } = useClerk();
+  const queryClient = useQueryClient();
+  const prevUserIdRef = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     const unsubscribe = addListener(({ user }) => {
-      const userId = user?.id ?? null
+      const userId = user?.id ?? null;
       if (
         prevUserIdRef.current !== undefined &&
         prevUserIdRef.current !== userId
       ) {
-        queryClient.clear()
+        queryClient.clear();
       }
-      prevUserIdRef.current = userId
-    })
-    return unsubscribe
-  }, [addListener, queryClient])
+      prevUserIdRef.current = userId;
+    });
+    return unsubscribe;
+  }, [addListener, queryClient]);
 
-  return null
+  return null;
 }
 
 function HomeRedirect() {
@@ -84,26 +126,35 @@ function HomeRedirect() {
         <Landing />
       </Show>
     </>
-  )
+  );
 }
 
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+function ProtectedRoute({
+  component: Component,
+}: {
+  component: React.ComponentType;
+}) {
   return (
     <>
       <Show when="signed-in">
-        <Component />
+        <AppShell>
+          <Component />
+        </AppShell>
       </Show>
       <Show when="signed-out">
         <Redirect to="/sign-in" />
       </Show>
     </>
-  )
+  );
 }
 
 function ClerkProviderWithRoutes() {
-  const [, setLocation] = useLocation()
-  const { theme } = useTheme()
-  const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+  const [, setLocation] = useLocation();
+  const { theme } = useTheme();
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   const clerkAppearance = {
     baseTheme: isDark ? dark : undefined,
@@ -117,11 +168,15 @@ function ClerkProviderWithRoutes() {
     variables: {
       colorPrimary: isDark ? "hsl(226, 80%, 65%)" : "hsl(228, 75%, 26%)",
       colorForeground: isDark ? "hsl(210, 40%, 96%)" : "hsl(226, 50%, 12%)",
-      colorMutedForeground: isDark ? "hsl(215, 20%, 65%)" : "hsl(226, 20%, 45%)",
+      colorMutedForeground: isDark
+        ? "hsl(215, 20%, 65%)"
+        : "hsl(226, 20%, 45%)",
       colorDanger: isDark ? "hsl(0, 70%, 50%)" : "hsl(0, 84%, 60%)",
       colorBackground: isDark ? "hsl(226, 40%, 9%)" : "white",
       colorInput: isDark ? "hsl(226, 35%, 15%)" : "hsl(226, 15%, 90%)",
-      colorInputForeground: isDark ? "hsl(210, 40%, 96%)" : "hsl(226, 50%, 12%)",
+      colorInputForeground: isDark
+        ? "hsl(210, 40%, 96%)"
+        : "hsl(226, 50%, 12%)",
       colorNeutral: isDark ? "hsl(226, 35%, 15%)" : "hsl(226, 15%, 90%)",
       fontFamily: "Geist, sans-serif",
       borderRadius: "0.5rem",
@@ -139,7 +194,7 @@ function ClerkProviderWithRoutes() {
       footerActionText: isDark ? "text-slate-400" : "text-slate-500",
       dividerText: `${isDark ? "text-slate-500" : "text-slate-400"} text-xs font-medium uppercase`,
     },
-  }
+  };
 
   return (
     <ClerkProvider
@@ -147,6 +202,8 @@ function ClerkProviderWithRoutes() {
       proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
+      signInFallbackRedirectUrl={`${basePath}/dashboard`}
+      signUpFallbackRedirectUrl={`${basePath}/dashboard`}
       signUpUrl={`${basePath}/sign-up`}
       localization={{
         signIn: {
@@ -165,32 +222,67 @@ function ClerkProviderWithRoutes() {
           <Route path="/" component={HomeRedirect} />
           <Route path="/sign-in/*?" component={SignInPage} />
           <Route path="/sign-up/*?" component={SignUpPage} />
-          
-          <Route path="/dashboard"><ProtectedRoute component={Dashboard} /></Route>
-          <Route path="/analyze"><ProtectedRoute component={Analyze} /></Route>
-          <Route path="/analyses/:id"><ProtectedRoute component={AnalysisDetails} /></Route>
-          <Route path="/history"><ProtectedRoute component={History} /></Route>
-          
-          <Route path="/resumes/new"><ProtectedRoute component={ResumeForm} /></Route>
-          <Route path="/resumes/:id/edit"><ProtectedRoute component={ResumeForm} /></Route>
-          <Route path="/resumes/:id/preview"><ProtectedRoute component={ResumePreview} /></Route>
-          
+
+          <Route path="/admin/sign-in/*?" component={AdminSignInPage} />
+          <Route path="/admin">
+            <ProtectedRoute component={Admin} />
+          </Route>
+          <Route path="/account">
+            <ProtectedRoute component={Account} />
+          </Route>
+          <Route path="/resumes">
+            <ProtectedRoute component={SavedResumes} />
+          </Route>
+          <Route path="/dashboard">
+            <ProtectedRoute component={Dashboard} />
+          </Route>
+          <Route path="/analyze">
+            <ProtectedRoute component={Analyze} />
+          </Route>
+          <Route path="/analyses/:id">
+            <ProtectedRoute component={AnalysisDetails} />
+          </Route>
+          <Route path="/history">
+            <ProtectedRoute component={History} />
+          </Route>
+
+          <Route path="/resumes/new">
+            <ProtectedRoute component={ResumeForm} />
+          </Route>
+          <Route path="/resumes/:id/edit">
+            <ProtectedRoute component={ResumeForm} />
+          </Route>
+          <Route path="/resumes/:id/preview">
+            <ProtectedRoute component={ResumePreview} />
+          </Route>
+
           <Route component={NotFound} />
         </Switch>
         <Toaster position="top-center" richColors />
       </QueryClientProvider>
     </ClerkProvider>
-  )
+  );
 }
 
 function App() {
+  if (!clerkPubKey)
+    return (
+      <main className="min-h-screen flex items-center justify-center p-8">
+        <div>
+          <h1 className="text-3xl font-serif">ResumeForge</h1>
+          <p className="mt-4">
+            Sign-in is not configured yet. Please contact the site owner.
+          </p>
+        </div>
+      </main>
+    );
   return (
     <ThemeProvider defaultTheme="light" storageKey="resumeforge-theme">
       <WouterRouter base={basePath}>
         <ClerkProviderWithRoutes />
       </WouterRouter>
     </ThemeProvider>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -13,8 +13,7 @@ declare global {
 /** Verifies Clerk's session and creates the local ownership record on first use. */
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const auth = getAuth(req);
-  const claimUserId = auth.sessionClaims?.userId;
-  const userId = typeof claimUserId === "string" ? claimUserId : auth.userId;
+  const userId = auth.userId;
   if (typeof userId !== "string" || userId.length === 0) {
     res.status(401).json({ error: "Unauthorized" });
     return;

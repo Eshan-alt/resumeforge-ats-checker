@@ -15,6 +15,59 @@ tags:
   - name: analyses
     description: Authenticated ATS resume analysis operations
 paths:
+  /me:
+    get:
+      operationId: getAccount
+      summary: getAccount
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          description: Unauthenticated
+  /admin/overview:
+    get:
+      operationId: getAdminOverview
+      summary: getAdminOverview
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOverview'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Administrator access required
+  /admin/users:
+    get:
+      operationId: getAdminUsers
+      summary: getAdminUsers
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUsersPage'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Administrator access required
+        '400':
+          description: Invalid page
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100000
+          default: 1
   /healthz:
     get:
       operationId: healthCheck
@@ -243,6 +296,65 @@ components:
       required: true
       schema: { type: number }
   schemas:
+    Account:
+      type: object
+      required:
+      - userId
+      - role
+      properties:
+        userId: &id002
+          type: string
+        role:
+          type: string
+          enum:
+          - user
+          - admin
+    AdminOverview:
+      type: object
+      required:
+      - users
+      - resumes
+      - analyses
+      properties:
+        users: &id001
+          type: integer
+        resumes: *id001
+        analyses: *id001
+    AdminUser:
+      type: object
+      required:
+      - userId
+      - role
+      - createdAt
+      - resumes
+      - analyses
+      properties:
+        userId: *id002
+        role:
+          type: string
+          enum:
+          - user
+          - admin
+        createdAt:
+          type: string
+          format: date-time
+        resumes: *id001
+        analyses: *id001
+    AdminUsersPage:
+      type: object
+      required:
+      - users
+      - page
+      - pageSize
+      - total
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminUser'
+        page: *id001
+        pageSize: *id001
+        total: *id001
     AnalysisSummary:
       type: object
       required: [id, filename, mimeType, status, overallScore, createdAt, updatedAt]

@@ -55,6 +55,10 @@ This repository is a pnpm workspace monorepo built around the existing the devel
 - OpenAI-compatible server integration for OpenAI access without exposing provider credentials to the client.
 - pnpm workspaces and esbuild.
 
+## Accounts, administration, and deployment
+
+User login and sign-up use Clerk. The app now includes account settings, a searchable saved-resume library, a server-protected admin usage dashboard, and a Docker deployment configuration. See [the deployment guide](docs/DEPLOYMENT.md) for setup, admin access, environment variables, and launch checks.
+
 ## Getting started
 
 Require Node.js and pnpm. Install dependencies from the repository root:

@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { getOpenAI } from "@workspace/integrations-openai-ai-server";
 
 const SuggestionsSchema = z.object({
   improvements: z.array(z.string()).max(10),
@@ -64,8 +64,8 @@ function existingSummary(resume: string): string {
 }
 
 export async function createSuggestions(resume: string, job: string): Promise<Suggestions> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-5.6-luna", max_completion_tokens: 8192,
+  const response = await getOpenAI().chat.completions.create({
+    model: process.env.OPENAI_MODEL || (process.env.OPENAI_API_KEY ? "gpt-4.1-mini" : "gpt-5.6-luna"), max_completion_tokens: 8192,
     messages: [{ role: "system", content: "Return only JSON. Never invent qualifications, metrics, employers, tools, dates, or claims. Recommendations may reference the job description, but optimizedSummary and rewrittenWeakBullets must make claims only from the resume. For those rewrites, reuse the resume's meaningful vocabulary; only generic connective language and stronger action verbs may be added." },
       { role: "user", content: `Resume:\n${resume}\n\nJob description:\n${job}\n\nReturn {improvements:string[],strongerActionVerbs:string[],optimizedSummary:string,missingKeywordRecommendations:string[],rewrittenWeakBullets:string[]}. Rewrites must preserve only stated facts. If a safe rewrite is not possible, return the original source wording instead.` }],
   });
@@ -80,8 +80,8 @@ export async function createSuggestions(resume: string, job: string): Promise<Su
 }
 
 export async function rewriteBullet(bullet: string, resume: string, job: string): Promise<string> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-5.6-luna", max_completion_tokens: 8192,
+  const response = await getOpenAI().chat.completions.create({
+    model: process.env.OPENAI_MODEL || (process.env.OPENAI_API_KEY ? "gpt-4.1-mini" : "gpt-5.6-luna"), max_completion_tokens: 8192,
     messages: [{ role: "system", content: "Return only a rewritten resume bullet. Preserve only facts in the supplied bullet; do not invent metrics or claims. Reuse the bullet's meaningful vocabulary; only generic connective language and stronger action verbs may be added. If a safe rewrite is not possible, return the original bullet." },
       { role: "user", content: `Bullet: ${bullet}\nResume context: ${resume}\nJob description: ${job}` }],
   });

@@ -1,132 +1,302 @@
-import { Link } from "wouter"
-import { Button } from "@/components/ui/button"
-import { Briefcase, CheckCircle2, ChevronRight, FileSearch, ShieldCheck, Target, Zap } from "lucide-react"
+import { Link } from "wouter";
+import {
+  ArrowUpRight,
+  Briefcase,
+  Check,
+  FileSearch,
+  FileText,
+  ShieldCheck,
+  ArrowRight,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
-import { ThemeToggle } from "@/components/theme-toggle"
-
+const features = [
+  {
+    icon: FileSearch,
+    title: "Know where you stand",
+    text: "Compare your resume with a specific job description. See keyword gaps, section coverage, and an explainable score.",
+  },
+  {
+    icon: FileText,
+    title: "Build with purpose",
+    text: "Create a structured resume, preview it, and keep separate versions for the roles you care about.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Keep your story accurate",
+    text: "Optional AI suggestions help improve wording. Review every suggestion and add only skills and achievements you can support.",
+  },
+];
+const questions = [
+  [
+    "What does the ATS score mean?",
+    "It estimates how your resume aligns with the job description using ResumeForge’s checks. Employers use different systems, so a score cannot guarantee an interview.",
+  ],
+  [
+    "Which files can I upload?",
+    "Upload a text-based PDF or DOCX up to 10 MB. Image-only scans need to be converted to readable text before analysis.",
+  ],
+  [
+    "Can I keep more than one resume?",
+    "Yes. Save and name separate resumes for different roles, then search, edit, preview, or delete them in your resume library.",
+  ],
+  [
+    "Do I need AI to use the checker?",
+    "No. Resume building and deterministic ATS scoring work independently of the optional AI suggestions.",
+  ],
+];
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background flex flex-col font-sans">
-      <header className="container mx-auto px-4 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground">
-            <Briefcase className="w-4 h-4" />
-          </div>
-          <span className="font-serif text-xl font-medium tracking-tight text-primary">ResumeForge</span>
-        </div>
-        <div className="flex items-center gap-2 md:gap-4">
-          <ThemeToggle />
-          <Link href="/sign-in" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">Sign In</Link>
-          <Button asChild className="rounded-full px-6">
-            <Link href="/sign-up">Start Free Trial</Link>
-          </Button>
+    <div className="min-h-screen bg-background">
+      <header className="border-b bg-background/90">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 h-20 flex items-center justify-between gap-3">
+          <Link
+            href="/"
+            className="flex items-center gap-3 font-semibold text-lg tracking-tight"
+          >
+            <span className="bg-primary text-primary-foreground p-2.5 rounded-xl">
+              <Briefcase size={20} />
+            </span>
+            ResumeForge
+          </Link>
+          <nav aria-label="Main navigation" className="flex items-center gap-4">
+            <a
+              href="#how-it-works"
+              className="hidden md:block text-sm text-muted-foreground hover:text-foreground"
+            >
+              How it works
+            </a>
+            <a
+              href="#faq"
+              className="hidden md:block text-sm text-muted-foreground hover:text-foreground"
+            >
+              FAQs
+            </a>
+            <ThemeToggle />
+            <Link href="/sign-in" className="text-sm font-medium">
+              Sign in
+            </Link>
+            <Button asChild className="hidden sm:inline-flex">
+              <Link href="/sign-up">
+                Get started <ArrowUpRight size={16} />
+              </Link>
+            </Button>
+          </nav>
         </div>
       </header>
-
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="pt-24 pb-32 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background"></div>
-          
-          <div className="container mx-auto max-w-5xl text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8 border border-primary/20">
-              <Zap className="w-4 h-4" />
-              <span>Now with AI-powered keyword matching</span>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-serif text-foreground mb-6 leading-tight tracking-tight">
-              Evidence-based feedback <br className="hidden md:block"/>
-              for <span className="text-primary italic">serious</span> job seekers.
-            </h1>
-            
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-              Upload your resume and the exact job description. ResumeForge acts as the ATS, giving you precise, actionable data to bridge the gap before you apply.
+      <main>
+        <section className="mx-auto max-w-7xl px-5 sm:px-8 py-16 lg:py-24 grid lg:grid-cols-2 gap-14 items-center">
+          <div>
+            <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-primary mb-7">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              Your next opportunity starts here
             </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="h-14 px-8 text-lg rounded-full w-full sm:w-auto shadow-xl shadow-primary/20">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl leading-[1.04] font-serif max-w-xl">
+              A stronger resume.
+              <br />
+              <span className="text-primary italic">A clearer next step.</span>
+            </h1>
+            <p className="mt-7 text-lg leading-relaxed text-muted-foreground max-w-lg">
+              Turn a job description into a plan. Find the gaps in your resume,
+              sharpen your story, and build an application that reflects what
+              you bring.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild size="lg" className="h-12 px-6">
                 <Link href="/sign-up">
-                  Analyze Resume Now <ChevronRight className="ml-2 w-5 h-5" />
+                  Check my resume <ArrowRight size={18} />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg rounded-full w-full sm:w-auto">
-                <Link href="/sign-in">Sign In</Link>
+              <Button asChild variant="outline" size="lg" className="h-12 px-6">
+                <a href="#how-it-works">Explore how it works</a>
               </Button>
             </div>
-            
-            <div className="mt-16 flex items-center justify-center gap-8 text-sm font-medium text-muted-foreground">
-              <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> PDF & DOCX Support</div>
-              <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Instant Analysis</div>
-              <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Actionable Reports</div>
+            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-xs text-muted-foreground">
+              {["PDF & DOCX", "Private workspace", "Saved resume versions"].map(
+                (t) => (
+                  <span key={t} className="flex items-center gap-2">
+                    <Check size={14} className="text-primary" />
+                    {t}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
+          <div className="relative">
+            <div className="absolute -inset-6 bg-primary/5 rounded-[3rem] -rotate-3" />
+            <div className="relative rounded-2xl border bg-card shadow-xl shadow-primary/5 overflow-hidden">
+              <div className="border-b px-6 py-4 flex justify-between items-center">
+                <span className="text-sm font-semibold">
+                  Your application, at a glance
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground rounded-full border px-2 py-1">
+                  Illustrative preview
+                </span>
+              </div>
+              <div className="p-6 sm:p-8">
+                <div className="flex justify-between items-center gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      TARGET ROLE
+                    </p>
+                    <h2 className="text-xl font-semibold">Software Engineer</h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Resume alignment report
+                    </p>
+                  </div>
+                  <div className="rounded-full border-8 border-primary/15 h-24 w-24 flex items-center justify-center shrink-0">
+                    <span className="font-semibold text-3xl">
+                      78
+                      <span className="text-xs text-muted-foreground">
+                        /100
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-8 space-y-5">
+                  {[
+                    ["Keyword alignment", 82],
+                    ["Section coverage", 90],
+                    ["Formatting", 64],
+                  ].map(([label, value]) => (
+                    <div key={label}>
+                      <div className="flex justify-between text-xs mb-2">
+                        <span>{label}</span>
+                        <span className="font-medium">{value}%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-primary/75"
+                          style={{ width: `${value}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-7 rounded-xl bg-muted/50 border p-4">
+                  <p className="text-xs font-semibold mb-2">YOUR NEXT STEP</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Make your project impact easier to find. Clarify your
+                    contribution and use relevant skills you already have.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
-
-        {/* Features Section */}
-        <section className="py-24 bg-muted/30 border-y border-border">
-          <div className="container mx-auto px-4 max-w-6xl">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">A professional instrument, not a template.</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">We strip away the noise and give you exactly what hiring managers and automated systems are looking for.</p>
+        <section className="border-y bg-card py-16">
+          <div className="max-w-7xl mx-auto px-5 sm:px-8">
+            <div className="flex flex-col md:flex-row md:justify-between gap-4 mb-10">
+              <h2 className="font-serif text-4xl">
+                Less guesswork.
+                <br />
+                More useful feedback.
+              </h2>
+              <p className="text-muted-foreground max-w-md leading-relaxed">
+                Everything you need to prepare your resume, understand the
+                feedback, and keep your applications organized.
+              </p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-background border rounded-2xl p-8 shadow-sm">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-6">
-                  <Target className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Precision Targeting</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Upload the exact job description you're applying for. We extract the hard requirements and compare them line-by-line against your experience.
-                </p>
-              </div>
-              
-              <div className="bg-background border rounded-2xl p-8 shadow-sm">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-6">
-                  <FileSearch className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Deep Parsing</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Our system simulates enterprise Applicant Tracking Systems to test your document's scannability, section headers, and formatting issues.
-                </p>
-              </div>
-              
-              <div className="bg-background border rounded-2xl p-8 shadow-sm">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-6">
-                  <ShieldCheck className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Actionable Rewrites</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Identify weak bullet points and get AI-assisted recommendations to strengthen action verbs and impact metrics.
-                </p>
-              </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {features.map(({ icon: Icon, title, text }) => (
+                <article
+                  key={title}
+                  className="rounded-xl border bg-background p-7"
+                >
+                  <Icon className="text-primary mb-6" size={26} />
+                  <h3 className="font-semibold text-lg mb-3">{title}</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {text}
+                  </p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
-
-        {/* CTA Section */}
-        <section className="py-32 px-4">
-          <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="text-4xl md:text-5xl font-serif text-foreground mb-6 tracking-tight">Stop guessing. Start applying with confidence.</h2>
-            <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-              Compare your resume with the role, fix the highest-impact gaps, and apply with a clearer strategy.
-            </p>
-            <Button asChild size="lg" className="h-14 px-10 text-lg rounded-full shadow-lg">
-              <Link href="/sign-up">Create Free Account</Link>
+        <section
+          id="how-it-works"
+          className="max-w-7xl mx-auto px-5 sm:px-8 py-20 scroll-mt-6"
+        >
+          <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-4">
+            A simple workflow
+          </p>
+          <h2 className="font-serif text-4xl mb-10">
+            From upload to a better application.
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              [
+                "Bring your resume",
+                "Upload your PDF or DOCX, or build a resume in your workspace.",
+              ],
+              [
+                "Choose the opportunity",
+                "Paste the job description so the feedback reflects the role.",
+              ],
+              [
+                "Review and improve",
+                "Focus on the important gaps, revise your resume, and track your analyses.",
+              ],
+            ].map(([title, text], i) => (
+              <div key={title} className="border-t pt-5">
+                <span className="text-primary font-mono text-sm">0{i + 1}</span>
+                <h3 className="font-semibold mt-5 mb-2">{title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section id="faq" className="max-w-3xl mx-auto px-5 pb-20 scroll-mt-6">
+          <h2 className="font-serif text-4xl mb-8">Before you get started.</h2>
+          {questions.map(([q, a]) => (
+            <details key={q} className="group border-b py-5">
+              <summary className="cursor-pointer font-medium focus-visible:outline-2 focus-visible:outline-primary">
+                {q}
+              </summary>
+              <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
+                {a}
+              </p>
+            </details>
+          ))}
+        </section>
+        <section className="mx-5 sm:mx-8 mb-16">
+          <div className="mx-auto max-w-7xl bg-primary text-primary-foreground rounded-2xl px-6 py-12 sm:p-14 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div>
+              <h2 className="font-serif text-4xl mb-3">
+                Make your next application count.
+              </h2>
+              <p className="text-primary-foreground/80">
+                Start with the experience you have. Build a clearer story.
+              </p>
+            </div>
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
+              className="shrink-0 self-start md:self-auto"
+            >
+              <Link href="/sign-up">
+                Create your account <ArrowUpRight size={18} />
+              </Link>
             </Button>
           </div>
         </section>
       </main>
-
-      <footer className="border-t border-border py-10 text-center text-sm text-muted-foreground bg-muted/20">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
-          <div className="flex items-center gap-2 mb-4 md:mb-0">
-            <Briefcase className="w-4 h-4" />
-            <span className="font-semibold text-foreground">ResumeForge</span>
-          </div>
-          <p>© {new Date().getFullYear()} ResumeForge. All rights reserved.</p>
+      <footer className="border-t px-5 py-8">
+        <div className="max-w-7xl mx-auto flex flex-wrap justify-between gap-4 text-xs text-muted-foreground">
+          <span>© {new Date().getFullYear()} ResumeForge</span>
+          <span>
+            Resume feedback supports your preparation; it doesn’t guarantee
+            hiring outcomes.
+          </span>
+          <Link href="/admin/sign-in" className="hover:text-foreground">
+            Admin sign in
+          </Link>
         </div>
       </footer>
     </div>
-  )
+  );
 }

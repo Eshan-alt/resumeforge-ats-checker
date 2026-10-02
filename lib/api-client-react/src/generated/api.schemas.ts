@@ -5,6 +5,48 @@
  * ATS Resume Builder API
  * OpenAPI spec version: 0.1.0
  */
+export type AccountRole = typeof AccountRole[keyof typeof AccountRole];
+
+
+export const AccountRole = {
+  user: 'user',
+  admin: 'admin',
+} as const;
+
+export interface Account {
+  userId: string;
+  role: AccountRole;
+}
+
+export interface AdminOverview {
+  users: number;
+  resumes: number;
+  analyses: number;
+}
+
+export type AdminUserRole = typeof AdminUserRole[keyof typeof AdminUserRole];
+
+
+export const AdminUserRole = {
+  user: 'user',
+  admin: 'admin',
+} as const;
+
+export interface AdminUser {
+  userId: string;
+  role: AdminUserRole;
+  createdAt: string;
+  resumes: number;
+  analyses: number;
+}
+
+export interface AdminUsersPage {
+  users: AdminUser[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
 export interface AnalysisSummary {
   id: number;
   filename: string;
@@ -184,6 +226,14 @@ export interface ResumeScore {
   label: string;
   tips: ScoreTip[];
 }
+
+export type GetAdminUsersParams = {
+/**
+ * @minimum 1
+ * @maximum 100000
+ */
+page?: number;
+};
 
 export type CreateAnalysisBody = {
   file: Blob;
