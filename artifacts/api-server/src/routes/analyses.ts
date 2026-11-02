@@ -19,7 +19,7 @@ const MAX_JOB_DESCRIPTION_LENGTH = 50_000;
 const MAX_DOCX_ENTRIES = 2_000;
 const MAX_DOCX_UNCOMPRESSED_BYTES = 30 * 1024 * 1024;
 const upload = multer({
-  storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  storage: multer.memoryStorage(), limits: { fileSize: 4 * 1024 * 1024, files: 1 },
   fileFilter: (_req, file, callback) => callback(null, ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(file.mimetype)),
 });
 
@@ -95,14 +95,14 @@ router.get("/analyses", async (req, res): Promise<void> => {
   })));
 });
 router.post("/analyses", upload.single("file"), async (req, res): Promise<void> => {
-  if (!req.file) { res.status(400).json({ error: "Upload one PDF or DOCX file (maximum 10 MB)." }); return; }
+  if (!req.file) { res.status(400).json({ error: "Upload one PDF or DOCX file (maximum 4 MB)." }); return; }
   const jobDescription = typeof req.body.jobDescription === "string" ? req.body.jobDescription.trim() : "";
-  if (!jobDescription) { res.status(400).json({ error: "jobDescription is required." }); return; }
+  if (!jobDescription) { res.status(400).json({ error: "Paste the job description you want to compare your resume with." }); return; }
   if (jobDescription.length > MAX_JOB_DESCRIPTION_LENGTH) { res.status(400).json({ error: "Job description exceeds the 50,000 character limit." }); return; }
   let text: string;
   try { text = (await extractText(req.file)).replace(/\u0000/g, "").trim(); }
-  catch (err) { req.log.warn({ err, mimeType: req.file.mimetype }, "Resume extraction failed"); res.status(400).json({ error: "The uploaded document could not be read safely." }); return; }
-  if (!text) { res.status(400).json({ error: "The uploaded document contains no extractable text." }); return; }
+  catch (err) { req.log.warn({ err, mimeType: req.file.mimetype }, "Resume extraction failed"); res.status(400).json({ error: "We couldn’t read this file. Export a fresh text-based PDF or DOCX and try again." }); return; }
+  if (!text) { res.status(400).json({ error: "This file has no readable text. Use a text-based PDF or DOCX; image-only scans need text recognition first." }); return; }
   if (text.length > MAX_EXTRACTED_TEXT_LENGTH) { res.status(400).json({ error: "Extracted resume text exceeds the 100,000 character limit." }); return; }
   const parsedSections = parseResumeSections(text);
   const deterministicResults = analyzeResume(text, jobDescription, parsedSections);
@@ -142,7 +142,7 @@ router.post("/analyses/:id/rewrite-bullet", async (req, res): Promise<void> => {
   const row = await owned(params.data.id, req.userId!);
   if (!row) { res.status(404).json({ error: "Analysis not found" }); return; }
   if (!row.extractedText.toLowerCase().replace(/\s+/g, " ").includes(body.data.bullet.toLowerCase().replace(/\s+/g, " "))) {
-    res.status(400).json({ error: "The bullet must come from this resume." });
+    res.status(400).json({ error: "Paste an exact bullet point from the resume used in this analysis." });
     return;
   }
   try { res.json(RewriteAnalysisBulletResponse.parse({ rewrittenBullet: await rewriteBullet(body.data.bullet, row.extractedText, row.jobDescription) })); }

@@ -40,14 +40,15 @@ export default function Admin() {
         <ShieldCheck className="text-primary mb-3" size={32} />
         <h1 className="text-3xl font-serif">Administration</h1>
         <p className="text-muted-foreground mt-2">
-          Monitor registered app users and platform usage.
+          Review account activity, saved resumes, and analysis usage across
+          ResumeForge.
         </p>
       </div>
       {account.isLoading ? (
         <p role="status">Checking access…</p>
       ) : account.isError ? (
         <p role="alert">
-          Could not verify access.{" "}
+          We couldn’t verify your administrator access. Please try again.{" "}
           <Button variant="outline" onClick={() => account.refetch()}>
             Retry
           </Button>
@@ -65,7 +66,7 @@ export default function Admin() {
         <>
           {overview.isError || users.isError ? (
             <div role="alert">
-              Unable to load administration data.{" "}
+              We couldn’t load the usage overview. Please try again.{" "}
               <Button
                 variant="outline"
                 onClick={() => {
@@ -101,8 +102,8 @@ export default function Admin() {
             <CardHeader>
               <CardTitle>Users</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Accounts appear after their first authenticated API request.
-                Resume contents stay private.
+                This list includes accounts that have used the workspace. It
+                shows usage counts without exposing private resume content.
               </p>
             </CardHeader>
             <CardContent>
@@ -141,7 +142,9 @@ export default function Admin() {
                     </tbody>
                   </table>
                   {users.data?.users.length === 0 && (
-                    <p className="py-6">No users on this page.</p>
+                    <p className="py-6">
+                      No accounts to show on this page yet.
+                    </p>
                   )}
                 </div>
               )}

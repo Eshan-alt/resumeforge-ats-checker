@@ -40,11 +40,12 @@ export default function SavedResumes() {
         <div>
           <h1 className="text-3xl font-serif">My resumes</h1>
           <p className="text-muted-foreground mt-2">
-            Keep a tailored resume for each opportunity.
+            Keep your resume versions organized. Open a saved resume to edit,
+            preview, or export it.
           </p>
         </div>
         <Button asChild>
-          <Link href="/resumes/new">Create resume</Link>
+          <Link href="/resumes/new">Create a resume</Link>
         </Button>
       </div>
       <Input
@@ -57,7 +58,7 @@ export default function SavedResumes() {
         <p role="status">Loading resumes…</p>
       ) : resumes.isError ? (
         <p role="alert">
-          Unable to load resumes.{" "}
+          We couldn’t load your resumes. Please try again.{" "}
           <Button variant="outline" onClick={() => resumes.refetch()}>
             Retry
           </Button>
@@ -67,7 +68,7 @@ export default function SavedResumes() {
           <CardContent className="py-12 text-center">
             {search
               ? "No resumes match your search."
-              : "Create your first resume to get started."}
+              : "Your resume library is ready. Create your first resume to start building a version for your next role."}
           </CardContent>
         </Card>
       ) : (
@@ -136,7 +137,10 @@ export default function SavedResumes() {
                       setPending(null);
                       toast.success("Resume deleted");
                     },
-                    onError: () => toast.error("Could not delete resume"),
+                    onError: () =>
+                      toast.error(
+                        "We couldn’t delete this resume. Please try again.",
+                      ),
                   },
                 )
               }

@@ -14,18 +14,18 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const features = [
   {
     icon: FileSearch,
-    title: "Know where you stand",
-    text: "Compare your resume with a specific job description. See keyword gaps, section coverage, and an explainable score.",
+    title: "Understand your resume’s fit",
+    text: "See how your resume matches a job description, with clear scores, missing keywords, and practical next steps.",
   },
   {
     icon: FileText,
-    title: "Build with purpose",
-    text: "Create a structured resume, preview it, and keep separate versions for the roles you care about.",
+    title: "Build a resume for each role",
+    text: "Organize your experience, preview a clean layout, and save tailored versions for different opportunities.",
   },
   {
     icon: ShieldCheck,
-    title: "Keep your story accurate",
-    text: "Optional AI suggestions help improve wording. Review every suggestion and add only skills and achievements you can support.",
+    title: "Write with confidence",
+    text: "Get optional help refining your summary and bullet points. Keep every claim grounded in your real experience.",
   },
 ];
 const questions = [
@@ -35,7 +35,7 @@ const questions = [
   ],
   [
     "Which files can I upload?",
-    "Upload a text-based PDF or DOCX up to 10 MB. Image-only scans need to be converted to readable text before analysis.",
+    "Upload a text-based PDF or DOCX up to 4 MB. Image-only scans need to be converted to readable text before analysis.",
   ],
   [
     "Can I keep more than one resume?",
@@ -43,7 +43,7 @@ const questions = [
   ],
   [
     "Do I need AI to use the checker?",
-    "No. Resume building and deterministic ATS scoring work independently of the optional AI suggestions.",
+    "No. You can build resumes and check their alignment with a job description without AI. Writing suggestions are optional and depend on availability.",
   ],
 ];
 export default function Landing() {
@@ -90,7 +90,7 @@ export default function Landing() {
           <div>
             <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-primary mb-7">
               <span className="h-2 w-2 rounded-full bg-primary" />
-              Your next opportunity starts here
+              Build your next opportunity
             </p>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl leading-[1.04] font-serif max-w-xl">
               A stronger resume.
@@ -98,9 +98,9 @@ export default function Landing() {
               <span className="text-primary italic">A clearer next step.</span>
             </h1>
             <p className="mt-7 text-lg leading-relaxed text-muted-foreground max-w-lg">
-              Turn a job description into a plan. Find the gaps in your resume,
-              sharpen your story, and build an application that reflects what
-              you bring.
+              Show employers what you bring. Compare your resume with a job
+              description, understand what needs attention, and present your
+              experience clearly.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg" className="h-12 px-6">
@@ -109,7 +109,7 @@ export default function Landing() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="h-12 px-6">
-                <a href="#how-it-works">Explore how it works</a>
+                <a href="#how-it-works">See how it works</a>
               </Button>
             </div>
             <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-xs text-muted-foreground">
@@ -128,10 +128,10 @@ export default function Landing() {
             <div className="relative rounded-2xl border bg-card shadow-xl shadow-primary/5 overflow-hidden">
               <div className="border-b px-6 py-4 flex justify-between items-center">
                 <span className="text-sm font-semibold">
-                  Your application, at a glance
+                  See what your resume is saying
                 </span>
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground rounded-full border px-2 py-1">
-                  Illustrative preview
+                  Example report
                 </span>
               </div>
               <div className="p-6 sm:p-8">
@@ -194,8 +194,8 @@ export default function Landing() {
                 More useful feedback.
               </h2>
               <p className="text-muted-foreground max-w-md leading-relaxed">
-                Everything you need to prepare your resume, understand the
-                feedback, and keep your applications organized.
+                Build your resume, understand the feedback, and keep your resume
+                versions and analysis reports in one place.
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
@@ -222,7 +222,7 @@ export default function Landing() {
             A simple workflow
           </p>
           <h2 className="font-serif text-4xl mb-10">
-            From upload to a better application.
+            Three steps to a clearer resume.
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -231,12 +231,12 @@ export default function Landing() {
                 "Upload your PDF or DOCX, or build a resume in your workspace.",
               ],
               [
-                "Choose the opportunity",
+                "Add the job description",
                 "Paste the job description so the feedback reflects the role.",
               ],
               [
                 "Review and improve",
-                "Focus on the important gaps, revise your resume, and track your analyses.",
+                "Review your score and recommendations, update your resume, and keep a record of each analysis.",
               ],
             ].map(([title, text], i) => (
               <div key={title} className="border-t pt-5">
@@ -250,7 +250,9 @@ export default function Landing() {
           </div>
         </section>
         <section id="faq" className="max-w-3xl mx-auto px-5 pb-20 scroll-mt-6">
-          <h2 className="font-serif text-4xl mb-8">Before you get started.</h2>
+          <h2 className="font-serif text-4xl mb-8">
+            Your questions, answered.
+          </h2>
           {questions.map(([q, a]) => (
             <details key={q} className="group border-b py-5">
               <summary className="cursor-pointer font-medium focus-visible:outline-2 focus-visible:outline-primary">
@@ -287,7 +289,9 @@ export default function Landing() {
       </main>
       <footer className="border-t px-5 py-8">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between gap-4 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} ResumeForge</span>
+          <span>
+            © {new Date().getFullYear()} Eshan Garg. All rights reserved.
+          </span>
           <span>
             Resume feedback supports your preparation; it doesn’t guarantee
             hiring outcomes.

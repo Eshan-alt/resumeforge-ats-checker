@@ -74,14 +74,16 @@ export default function AnalysisDetails() {
       { id: analysisId },
       {
         onSuccess: () => {
-          toast.success("AI Suggestions generated!");
+          toast.success("Your writing suggestions are ready to review.");
           queryClient.invalidateQueries({
             queryKey: getGetAnalysisQueryKey(analysisId),
           });
         },
         onError: (err: any) => {
           toast.error(
-            err?.error || err?.message || "Failed to generate suggestions",
+            err?.error ||
+              err?.message ||
+              "Writing suggestions are unavailable right now. Please try again later.",
           );
         },
       },
@@ -95,9 +97,12 @@ export default function AnalysisDetails() {
       {
         onSuccess: (res) => {
           setRewrittenBullet(res.rewrittenBullet);
-          toast.success("Bullet rewritten!");
+          toast.success("Your revised bullet point is ready to review.");
         },
-        onError: () => toast.error("Failed to rewrite bullet"),
+        onError: () =>
+          toast.error(
+            "We couldn’t rewrite this bullet. Use an exact bullet from the uploaded resume and try again.",
+          ),
       },
     );
   };
@@ -110,9 +115,9 @@ export default function AnalysisDetails() {
     return (
       <div className="min-h-screen bg-muted/20 flex flex-col items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-        <h2 className="text-xl font-medium">Analyzing Resume...</h2>
+        <h2 className="text-xl font-medium">Loading your analysis…</h2>
         <p className="text-muted-foreground text-sm mt-2">
-          Parsing content and scoring against job description
+          Retrieving your saved score, keyword feedback, and recommendations.
         </p>
       </div>
     );
@@ -123,13 +128,15 @@ export default function AnalysisDetails() {
       <div className="min-h-screen bg-muted/20 flex flex-col items-center justify-center p-4">
         <div className="bg-card p-8 rounded-xl shadow-sm text-center max-w-md w-full border border-border">
           <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
-          <h2 className="text-xl font-medium mb-2">Analysis Not Found</h2>
+          <h2 className="text-xl font-medium mb-2">
+            We couldn’t open this analysis
+          </h2>
           <p className="text-muted-foreground mb-6">
             We couldn't load the details for this analysis. It may have been
             deleted.
           </p>
           <Button onClick={() => setLocation("/dashboard")} className="w-full">
-            Return to Dashboard
+            Back to overview
           </Button>
         </div>
       </div>
@@ -173,6 +180,7 @@ export default function AnalysisDetails() {
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label="Back to overview"
                 onClick={() => setLocation("/dashboard")}
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -196,6 +204,7 @@ export default function AnalysisDetails() {
                 size="sm"
                 onClick={handleDownload}
                 className="gap-2"
+                aria-label="Download analysis report as HTML"
                 data-testid="button-download-report"
               >
                 <Download className="w-4 h-4" />{" "}
@@ -236,16 +245,16 @@ export default function AnalysisDetails() {
                     {score}
                   </span>
                   <span className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-                    Match
+                    / 100
                   </span>
                 </div>
               </div>
               <h2 className="text-xl font-semibold mb-2">
                 {isGood
-                  ? "Excellent Match"
+                  ? "Strong alignment"
                   : isOkay
-                    ? "Moderate Match"
-                    : "Needs Improvement"}
+                    ? "Partial alignment"
+                    : "Room to improve"}
               </h2>
               <p className="text-sm text-muted-foreground max-w-[250px]">
                 Your resume{" "}
@@ -254,7 +263,8 @@ export default function AnalysisDetails() {
                   : isOkay
                     ? "partially aligns"
                     : "lacks alignment"}{" "}
-                with the target job description.
+                with the target job description in this check. Use the score to
+                guide revisions; it does not predict a hiring decision.
               </p>
             </CardContent>
           </Card>
@@ -263,7 +273,7 @@ export default function AnalysisDetails() {
           <Card className="lg:col-span-8 border-border shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary" /> Scoring Breakdown
+                <Target className="w-5 h-5 text-primary" /> Score breakdown
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -325,7 +335,7 @@ export default function AnalysisDetails() {
               value="keywords"
               className="flex-1 min-w-[120px] font-medium py-2.5"
             >
-              Keywords & Skills
+              Keywords & skills
             </TabsTrigger>
             <TabsTrigger
               value="formatting"
@@ -337,11 +347,16 @@ export default function AnalysisDetails() {
               value="ai-suggestions"
               className="flex-1 min-w-[120px] font-medium py-2.5 flex items-center gap-1.5"
             >
-              <Sparkles className="w-3.5 h-3.5" /> AI Insights
+              <Sparkles className="w-3.5 h-3.5" /> Writing suggestions
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="keywords" className="mt-0 outline-none">
+            <p className="text-sm text-muted-foreground mb-4">
+              These terms come from the job description. Add a missing skill
+              only if it reflects your experience; wording differences can
+              affect detection.
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="border-border shadow-sm border-t-4 border-t-green-500">
                 <CardHeader className="pb-4 border-b bg-muted/10">
@@ -357,7 +372,7 @@ export default function AnalysisDetails() {
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
-                        Hard Skills Found
+                        Skills found in your resume
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {analysis.deterministicResults.matchedSkills.length >
@@ -375,14 +390,14 @@ export default function AnalysisDetails() {
                           )
                         ) : (
                           <span className="text-sm text-muted-foreground italic">
-                            None found
+                            No matches detected
                           </span>
                         )}
                       </div>
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
-                        Keywords Found
+                        Keywords found in your resume
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {analysis.deterministicResults.matchedKeywords.length >
@@ -400,7 +415,7 @@ export default function AnalysisDetails() {
                           )
                         ) : (
                           <span className="text-sm text-muted-foreground italic">
-                            None found
+                            No matches detected
                           </span>
                         )}
                       </div>
@@ -423,7 +438,7 @@ export default function AnalysisDetails() {
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
-                        Missing Hard Skills
+                        Skills not detected
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {analysis.deterministicResults.missingSkills.length >
@@ -441,14 +456,14 @@ export default function AnalysisDetails() {
                           )
                         ) : (
                           <span className="text-sm text-muted-foreground italic">
-                            None missing!
+                            No gaps detected in this check
                           </span>
                         )}
                       </div>
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
-                        Missing Keywords
+                        Keywords not detected
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {analysis.deterministicResults.missingKeywords.length >
@@ -466,7 +481,7 @@ export default function AnalysisDetails() {
                           )
                         ) : (
                           <span className="text-sm text-muted-foreground italic">
-                            None missing!
+                            No gaps detected in this check
                           </span>
                         )}
                       </div>
@@ -480,9 +495,9 @@ export default function AnalysisDetails() {
           <TabsContent value="formatting" className="mt-0 outline-none">
             <Card className="border-border shadow-sm mb-6">
               <CardHeader className="pb-4">
-                <CardTitle className="text-base">Section Detection</CardTitle>
+                <CardTitle className="text-base">Resume sections</CardTitle>
                 <CardDescription>
-                  How well ATS software can parse your structure
+                  Sections detected in the extracted resume text.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -512,7 +527,7 @@ export default function AnalysisDetails() {
               <Card className="border-amber-200 shadow-sm bg-amber-50/30">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-base flex items-center gap-2 text-amber-800">
-                    <AlertTriangle className="w-5 h-5" /> Potential Issues
+                    <AlertTriangle className="w-5 h-5" /> Formatting to review
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -545,11 +560,12 @@ export default function AnalysisDetails() {
                     <Sparkles className="w-8 h-8" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">
-                    Deep AI Analysis
+                    Refine your wording
                   </h3>
                   <p className="text-muted-foreground max-w-md mx-auto mb-8">
-                    Unlock contextual recommendations, summary rewrites, and
-                    bullet point enhancements based on your specific job target.
+                    Get optional suggestions for your summary and bullet points,
+                    based on your resume and the role. Availability depends on
+                    whether the site owner has enabled AI.
                   </p>
                   <Button
                     size="lg"
@@ -565,7 +581,7 @@ export default function AnalysisDetails() {
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-5 h-5" /> Generate Insights
+                        <Sparkles className="w-5 h-5" /> Generate suggestions
                       </>
                     )}
                   </Button>
@@ -574,16 +590,15 @@ export default function AnalysisDetails() {
             ) : (
               <>
                 <div className="rounded-lg border border-amber-300/60 bg-amber-50/70 px-4 py-3 text-sm text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
-                  AI content is drafting guidance. Review every statement before
-                  adding it to your resume; ResumeForge blocks unsupported
-                  metrics and claim vocabulary, but you remain the final source
-                  of truth.
+                  Review each suggestion before using it. Keep only statements
+                  you can support with your experience, and verify every number,
+                  skill, and achievement.
                 </div>
                 <Card className="border-border shadow-sm border-t-4 border-t-primary">
                   <CardHeader className="pb-4 bg-muted/10 border-b">
                     <CardTitle className="text-base flex items-center gap-2">
-                      <Target className="w-5 h-5 text-primary" /> Top Priority
-                      Improvements
+                      <Target className="w-5 h-5 text-primary" /> Recommended
+                      next steps
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6">
@@ -607,7 +622,7 @@ export default function AnalysisDetails() {
                   <Card className="border-border shadow-sm">
                     <CardHeader className="pb-4 bg-muted/10 border-b">
                       <CardTitle className="text-base">
-                        Optimized Summary
+                        Suggested summary
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6">
@@ -620,7 +635,7 @@ export default function AnalysisDetails() {
                   <Card className="border-border shadow-sm">
                     <CardHeader className="pb-4 bg-muted/10 border-b">
                       <CardTitle className="text-base">
-                        Stronger Action Verbs
+                        Action verbs to consider
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6">
@@ -643,17 +658,18 @@ export default function AnalysisDetails() {
                   <div className="grid grid-cols-1 md:grid-cols-2">
                     <div className="p-6 md:border-r border-border">
                       <h3 className="font-semibold flex items-center gap-2 mb-4 text-foreground">
-                        <PenTool className="w-5 h-5 text-primary" /> Rewrite
-                        Weak Bullets
+                        <PenTool className="w-5 h-5 text-primary" /> Refine a
+                        bullet point
                       </h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Paste a bullet point from your experience section. AI
-                        will rewrite it focusing on impact metrics and active
-                        verbs.
+                        Paste an exact bullet point from the uploaded resume.
+                        Get clearer wording that preserves your original facts.
+                        Add numbers only when you can verify them.
                       </p>
 
                       <Textarea
-                        placeholder="e.g. Worked on the backend api and made it faster"
+                        aria-label="Original bullet point from your resume"
+                        placeholder="Paste an exact bullet point from this resume…"
                         value={bulletToRewrite}
                         onChange={(e) => setBulletToRewrite(e.target.value)}
                         className="min-h-[120px] mb-4 text-sm font-mono resize-none bg-background"
@@ -671,13 +687,13 @@ export default function AnalysisDetails() {
                         ) : (
                           <RefreshCw className="w-4 h-4" />
                         )}
-                        Rewrite Bullet
+                        Refine this bullet
                       </Button>
                     </div>
 
                     <div className="p-6 bg-background">
                       <h3 className="font-semibold mb-4 text-foreground">
-                        AI Suggestion
+                        Suggested wording
                       </h3>
                       {rewrittenBullet ? (
                         <div className="p-5 bg-green-50/50 border border-green-100 rounded-xl text-sm leading-relaxed text-green-900 relative">
@@ -686,7 +702,7 @@ export default function AnalysisDetails() {
                         </div>
                       ) : (
                         <div className="h-[120px] flex items-center justify-center border border-dashed rounded-xl text-sm text-muted-foreground bg-muted/20">
-                          Result will appear here
+                          Your revised bullet point will appear here.
                         </div>
                       )}
                     </div>

@@ -66,8 +66,10 @@ export default function Analyze() {
       toast.error("This file is empty. Choose another resume.");
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("File exceeds 10MB limit.");
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error(
+        "This file is too large. Choose a PDF or DOCX smaller than 4 MB.",
+      );
       return;
     }
     setFile(file);
@@ -80,12 +82,16 @@ export default function Analyze() {
       return;
     }
     if (!jobDescription.trim()) {
-      toast.error("Please provide a job description.");
+      toast.error(
+        "Paste the job description you want to compare your resume with.",
+      );
       return;
     }
 
     if (jobDescription.trim().length < 50) {
-      toast.error("Job description should be at least 50 characters.");
+      toast.error(
+        "Add at least 50 characters so there is enough detail to compare.",
+      );
       return;
     }
 
@@ -93,7 +99,7 @@ export default function Analyze() {
       { data: { file, jobDescription: jobDescription.trim() } },
       {
         onSuccess: (data) => {
-          toast.success("Analysis complete!");
+          toast.success("Your resume analysis is ready.");
           setLocation(`/analyses/${data.id}`);
         },
         onError: (err: any) => {
@@ -101,7 +107,7 @@ export default function Analyze() {
             err?.data?.error ||
             err?.error ||
             err?.message ||
-            "Failed to analyze resume.";
+            "We couldn’t analyze this resume. Check your file and try again.";
           setAnalysisError(message);
           toast.error(message);
         },
@@ -114,10 +120,11 @@ export default function Analyze() {
       <main className="container max-w-4xl mx-auto px-4 mt-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div>
           <h2 className="text-3xl font-serif text-foreground mb-2">
-            New Analysis
+            Check your resume
           </h2>
           <p className="text-muted-foreground">
-            Compare your resume against a specific job description.
+            Upload your resume and add a job description to see relevant skills,
+            keyword gaps, and suggestions for improvement.
           </p>
         </div>
 
@@ -128,7 +135,9 @@ export default function Analyze() {
               <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
                 1
               </div>
-              <h3 className="font-medium text-foreground">Upload Resume</h3>
+              <h3 className="font-medium text-foreground">
+                Upload your resume
+              </h3>
             </div>
 
             <Card>
@@ -146,10 +155,10 @@ export default function Analyze() {
                       <UploadCloud className="w-6 h-6" />
                     </div>
                     <h4 className="font-medium text-foreground mb-1">
-                      Drag & drop your resume
+                      Drop your resume here
                     </h4>
                     <p className="text-sm text-muted-foreground mb-6">
-                      PDF or DOCX up to 10MB
+                      Text-based PDF or DOCX · Up to 4 MB
                     </p>
 
                     <label>
@@ -165,7 +174,7 @@ export default function Analyze() {
                         variant="outline"
                         className="cursor-pointer"
                       >
-                        <span>Browse Files</span>
+                        <span>Choose a file</span>
                       </Button>
                     </label>
                   </div>
@@ -211,7 +220,7 @@ export default function Analyze() {
                 2
               </div>
               <h3 className="font-medium text-foreground">
-                Target Job Description
+                Add the job description
               </h3>
             </div>
 
@@ -221,7 +230,7 @@ export default function Analyze() {
                   aria-label="Target job description"
                   maxLength={50000}
                   disabled={createAnalysis.isPending}
-                  placeholder="Paste the full job description here..."
+                  placeholder="Paste the role’s responsibilities, required skills, and qualifications…"
                   className="min-h-[250px] flex-1 resize-none font-mono text-sm leading-relaxed"
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
@@ -239,7 +248,7 @@ export default function Analyze() {
                   </span>
                   {jobDescription.length > 0 && jobDescription.length < 50 && (
                     <span className="text-destructive">
-                      Minimum 50 characters required
+                      Add at least 50 characters
                     </span>
                   )}
                 </div>
@@ -267,7 +276,7 @@ export default function Analyze() {
               </>
             ) : (
               <>
-                Start Analysis
+                Analyze my resume
                 <ChevronRight className="w-5 h-5 ml-2" />
               </>
             )}
@@ -277,11 +286,11 @@ export default function Analyze() {
         {createAnalysis.isPending && (
           <div className="text-center mt-6">
             <p className="text-sm font-medium text-primary animate-pulse">
-              Scanning keywords, parsing sections, and comparing to job
-              requirements...
+              Reading your resume and comparing its skills, sections, and
+              keywords with the job description…
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              This usually takes about 10-15 seconds.
+              Keep this page open while we prepare your report.
             </p>
           </div>
         )}

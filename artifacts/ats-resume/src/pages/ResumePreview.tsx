@@ -36,15 +36,17 @@ export default function ResumePreview() {
     query: { enabled: !!resumeId, queryKey: getGetResumeQueryKey(resumeId) },
   });
 
-  const { data: score, isLoading: isLoadingScore } = useGetResumeScore(
-    resumeId,
-    {
-      query: {
-        enabled: !!resumeId,
-        queryKey: getGetResumeScoreQueryKey(resumeId),
-      },
+  const {
+    data: score,
+    isLoading: isLoadingScore,
+    isError: scoreError,
+    refetch: retryScore,
+  } = useGetResumeScore(resumeId, {
+    query: {
+      enabled: !!resumeId,
+      queryKey: getGetResumeScoreQueryKey(resumeId),
     },
-  );
+  });
 
   const handlePrint = () => {
     window.print();
@@ -83,12 +85,13 @@ export default function ResumePreview() {
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Back to overview"
               onClick={() => setLocation("/dashboard")}
               className="mr-2"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h2 className="font-serif font-medium text-lg">ATS Analysis</h2>
+            <h2 className="font-serif font-medium text-lg">Resume review</h2>
           </div>
           <ThemeToggle />
         </div>
@@ -133,19 +136,23 @@ export default function ResumePreview() {
                   {score.label}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  ATS Compatibility Score
+                  Resume completeness score
+                </p>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Checks the information included in this resume. Use the ATS
+                  checker to compare it with a specific job description.
                 </p>
               </div>
 
               <div className="flex-1 space-y-6">
                 <div>
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 uppercase tracking-wider text-muted-foreground">
-                    <Sparkles className="w-4 h-4" /> Actionable Tips
+                    <Sparkles className="w-4 h-4" /> Suggested improvements
                   </h4>
                   {score.tips.length === 0 ? (
                     <div className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-md">
-                      Your resume is perfectly optimized! No critical issues
-                      found.
+                      No additional suggestions from this completeness check.
+                      Review the details and tailor your resume to the role.
                     </div>
                   ) : (
                     <ul className="space-y-3">
@@ -176,18 +183,32 @@ export default function ResumePreview() {
                 </div>
               </div>
             </>
+          ) : scoreError ? (
+            <div role="alert" className="space-y-3 text-sm">
+              <p>
+                We couldn’t load the completeness review. Your resume is still
+                available below.
+              </p>
+              <Button variant="outline" onClick={() => retryScore()}>
+                Try again
+              </Button>
+            </div>
           ) : null}
 
           <div className="pt-6 mt-6 border-t space-y-3">
             <Button className="w-full gap-2" onClick={handlePrint}>
-              <Download className="w-4 h-4" /> Download PDF
+              <Download className="w-4 h-4" /> Print / save as PDF
             </Button>
+            <p className="text-xs text-muted-foreground">
+              Choose “Save as PDF” in your browser’s print dialog to export your
+              resume.
+            </p>
             <Button
               variant="outline"
               className="w-full gap-2"
               onClick={() => setLocation(`/resumes/${resumeId}/edit`)}
             >
-              <Pencil className="w-4 h-4" /> Edit Resume
+              <Pencil className="w-4 h-4" /> Edit resume
             </Button>
           </div>
         </div>

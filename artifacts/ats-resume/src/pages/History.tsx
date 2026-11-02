@@ -20,13 +20,22 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function History() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<number | null>(null);
 
-  const { data: analyses, isLoading } = useListAnalyses();
+  const { data: analyses, isLoading, isError, refetch } = useListAnalyses();
   const deleteAnalysis = useDeleteAnalysis();
 
   const handleDelete = (id: number) => {
@@ -34,12 +43,14 @@ export default function History() {
       { id },
       {
         onSuccess: () => {
+          setPendingDelete(null);
           toast.success("Analysis deleted");
           queryClient.invalidateQueries({
             queryKey: getListAnalysesQueryKey(),
           });
         },
-        onError: () => toast.error("Failed to delete analysis"),
+        onError: () =>
+          toast.error("We couldn’t delete this analysis. Please try again."),
       },
     );
   };
@@ -52,11 +63,19 @@ export default function History() {
   return (
     <div className="min-h-screen bg-muted/20 pb-20">
       <main className="container max-w-5xl mx-auto px-4 mt-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-serif mb-2">Analysis history</h1>
+          <p className="text-muted-foreground">
+            Revisit your reports, compare past scores, and find feedback for
+            your next revision.
+          </p>
+        </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-8">
           <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search by filename..."
+              aria-label="Search analysis history by filename"
+              placeholder="Search by resume filename…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 w-full"
@@ -70,7 +89,17 @@ export default function History() {
           </div>
         </div>
 
-        {isLoading ? (
+        {isError ? (
+          <div
+            role="alert"
+            className="rounded-xl border bg-card p-8 text-center space-y-4"
+          >
+            <p>We couldn’t load your analysis history. Please try again.</p>
+            <Button variant="outline" onClick={() => refetch()}>
+              Try again
+            </Button>
+          </div>
+        ) : isLoading ? (
           <div className="flex justify-center items-center py-32">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
@@ -81,22 +110,24 @@ export default function History() {
             </div>
             <h3 className="text-lg font-medium mb-1">No analyses found</h3>
             <p className="text-muted-foreground mb-4">
-              You haven't run any analyses yet, or none match your search.
+              {searchTerm
+                ? "Try a different filename or clear your search to see all reports."
+                : "Your reports will appear here after you check your first resume."}
             </p>
             {searchTerm ? (
               <Button variant="outline" onClick={() => setSearchTerm("")}>
-                Clear Search
+                Clear search
               </Button>
             ) : (
               <Button onClick={() => setLocation("/analyze")}>
-                New Analysis
+                Check a resume
               </Button>
             )}
           </div>
         ) : (
           <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
             <div className="grid grid-cols-12 gap-4 p-4 border-b bg-muted/30 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              <div className="col-span-6 md:col-span-5 pl-2">Filename</div>
+              <div className="col-span-6 md:col-span-5 pl-2">Resume file</div>
               <div className="col-span-3 md:col-span-2 text-center">Score</div>
               <div className="col-span-3 md:col-span-3 text-right md:text-left">
                 Date
@@ -122,6 +153,16 @@ export default function History() {
                     key={analysis.id}
                     className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-accent/20 cursor-pointer transition-colors"
                     onClick={() => setLocation(`/analyses/${analysis.id}`)}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (
+                        e.target === e.currentTarget &&
+                        (e.key === "Enter" || e.key === " ")
+                      ) {
+                        e.preventDefault();
+                        setLocation(`/analyses/${analysis.id}`);
+                      }
+                    }}
                     data-testid={`row-analysis-${analysis.id}`}
                   >
                     <div className="col-span-6 md:col-span-5 flex items-center gap-3 overflow-hidden pl-2">
@@ -153,10 +194,11 @@ export default function History() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        aria-label={`Delete analysis for ${analysis.filename}`}
                         className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(analysis.id);
+                          setPendingDelete(analysis.id);
                         }}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -169,6 +211,40 @@ export default function History() {
             </div>
           </div>
         )}
+        <Dialog
+          open={pendingDelete !== null}
+          onOpenChange={(open) => {
+            if (!open && !deleteAnalysis.isPending) setPendingDelete(null);
+          }}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete this analysis?</DialogTitle>
+              <DialogDescription>
+                This permanently removes the saved score and report. Your
+                original resume file is not changed.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                disabled={deleteAnalysis.isPending}
+                onClick={() => setPendingDelete(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={deleteAnalysis.isPending}
+                onClick={() =>
+                  pendingDelete !== null && handleDelete(pendingDelete)
+                }
+              >
+                {deleteAnalysis.isPending ? "Deleting…" : "Delete analysis"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

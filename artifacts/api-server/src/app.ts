@@ -53,7 +53,7 @@ if (process.env.STATIC_DIR) {
 }
 app.use((err: unknown, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
-    res.status(400).json({ error: "File exceeds the 10 MB upload limit." });
+    res.status(400).json({ error: "File exceeds the 4 MB upload limit." });
     return;
   }
   req.log.error({ err }, "Unhandled API error");

@@ -9,7 +9,8 @@ export default function Account() {
       </Link>
       <h1 className="text-3xl font-serif">Account settings</h1>
       <p className="text-muted-foreground">
-        Manage your profile, sign-in methods, and account security.
+        Update your profile, manage how you sign in, and review your account
+        security.
       </p>
       <UserProfile routing="hash" />
     </main>

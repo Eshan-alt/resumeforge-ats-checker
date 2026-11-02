@@ -183,18 +183,18 @@ router.get("/resumes/:id/score", async (req, res): Promise<void> => {
     score += 8;
   } else if (pi?.summary) {
     score += 4;
-    tips.push({ section: "Summary", message: "Expand your professional summary to at least 50 characters for better ATS visibility.", severity: "warning" });
+    tips.push({ section: "Summary", message: "Expand your summary with relevant experience and skills. Aim for at least 50 characters so it gives readers useful context.", severity: "warning" });
   } else {
-    tips.push({ section: "Summary", message: "Add a professional summary to help ATS systems categorize your profile.", severity: "error" });
+    tips.push({ section: "Summary", message: "Add a short summary of your experience, relevant skills, and professional focus.", severity: "error" });
   }
   if (!pi?.linkedIn) {
-    tips.push({ section: "Personal Info", message: "Adding a LinkedIn URL increases recruiter confidence and ATS profile completeness.", severity: "info" });
+    tips.push({ section: "Personal Info", message: "If you use LinkedIn, add your profile URL so readers can learn more about your experience.", severity: "info" });
   }
 
   // Work experience checks (30 pts)
   const work = data.workExperience ?? [];
   if (work.length === 0) {
-    tips.push({ section: "Work Experience", message: "Add at least one work experience entry.", severity: "error" });
+    tips.push({ section: "Work Experience", message: "Include relevant work, internship, volunteer, or project experience. Do not invent a role to increase this score.", severity: "error" });
   } else {
     score += 10;
     let bulletCount = 0;
@@ -205,7 +205,7 @@ router.get("/resumes/:id/score", async (req, res): Promise<void> => {
       score += 20;
     } else if (bulletCount > 0) {
       score += 10;
-      tips.push({ section: "Work Experience", message: "Aim for 3–5 bullet points per role to fully describe your impact.", severity: "warning" });
+      tips.push({ section: "Work Experience", message: "Use a few specific bullet points for each role to explain your contributions and results.", severity: "warning" });
     } else {
       tips.push({ section: "Work Experience", message: "Add bullet points to each role describing your achievements and responsibilities.", severity: "error" });
     }
@@ -223,10 +223,10 @@ router.get("/resumes/:id/score", async (req, res): Promise<void> => {
   const skills = data.skills ?? [];
   const totalSkills = skills.reduce((acc, g) => acc + (g.items ?? []).length, 0);
   if (totalSkills === 0) {
-    tips.push({ section: "Skills", message: "Add skills to help ATS keyword matching.", severity: "error" });
+    tips.push({ section: "Skills", message: "List relevant skills you can demonstrate through your work, projects, or education.", severity: "error" });
   } else if (totalSkills < 5) {
     score += 10;
-    tips.push({ section: "Skills", message: "Add more skills — aim for at least 5 to improve keyword matching.", severity: "warning" });
+    tips.push({ section: "Skills", message: "Review whether you have other relevant skills to include. Add only skills you can support with experience.", severity: "warning" });
   } else {
     score += 20;
   }
@@ -236,7 +236,7 @@ router.get("/resumes/:id/score", async (req, res): Promise<void> => {
   if (projects.length > 0) {
     score += 10;
   } else {
-    tips.push({ section: "Projects", message: "Adding projects demonstrates hands-on experience that ATS and recruiters look for.", severity: "info" });
+    tips.push({ section: "Projects", message: "Include a relevant project if it helps demonstrate your practical skills and contributions.", severity: "info" });
   }
 
   // Certifications (5 pts)
@@ -244,13 +244,13 @@ router.get("/resumes/:id/score", async (req, res): Promise<void> => {
   if (certs.length > 0) {
     score += 5;
   } else {
-    tips.push({ section: "Certifications", message: "Certifications can boost your score for technical roles.", severity: "info" });
+    tips.push({ section: "Certifications", message: "Include relevant certifications you have earned. Leave this section out if it does not apply.", severity: "info" });
   }
 
-  let label = "Needs Work";
-  if (score >= 85) label = "Excellent";
-  else if (score >= 70) label = "Good";
-  else if (score >= 50) label = "Fair";
+  let label = "Add more detail";
+  if (score >= 85) label = "Most sections covered";
+  else if (score >= 70) label = "Good section coverage";
+  else if (score >= 50) label = "Some sections need detail";
 
   res.json(
     GetResumeScoreResponse.parse({ score, maxScore, label, tips })

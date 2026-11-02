@@ -90,8 +90,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
         {children}
       </div>
       <footer className="no-print mx-auto max-w-6xl px-4 py-8 text-xs text-muted-foreground border-t mt-8 flex flex-wrap justify-between gap-3">
-        <span>ResumeForge · Build a stronger application.</span>
-        <span>Scores are guidance. Hiring systems and decisions vary.</span>
+        <span>
+          © {new Date().getFullYear()} Eshan Garg. All rights reserved.
+        </span>
+        <span>ResumeForge · Present your experience with clarity.</span>
       </footer>
     </div>
   );

@@ -2,12 +2,12 @@ import { z } from "zod"
 
 export const personalInfoSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Enter a valid email address"),
   phone: z.string().min(1, "Phone number is required"),
   location: z.string().min(1, "Location is required"),
   linkedIn: z.string().optional(),
   website: z.string().optional(),
-  summary: z.string().min(10, "Summary should be at least 10 characters")
+  summary: z.string().min(10, "Write a summary of at least 10 characters")
 })
 
 export const workExperienceSchema = z.object({
@@ -59,7 +59,7 @@ export const resumeDataSchema = z.object({
 })
 
 export const resumeInputSchema = z.object({
-  title: z.string().min(1, "Resume title is required (e.g. 'Software Engineer 2024')"),
+  title: z.string().min(1, "Give this resume a title, such as Software Engineer — Product Team"),
   data: resumeDataSchema
 })
 

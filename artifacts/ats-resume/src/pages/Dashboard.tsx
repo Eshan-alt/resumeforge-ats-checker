@@ -81,7 +81,8 @@ export default function Dashboard() {
             queryKey: getListAnalysesQueryKey(),
           });
         },
-        onError: () => toast.error("Failed to delete analysis"),
+        onError: () =>
+          toast.error("We couldn’t delete this analysis. Please try again."),
       },
     );
   };
@@ -112,7 +113,8 @@ export default function Dashboard() {
               Overview
             </h2>
             <p className="text-muted-foreground">
-              Track your resume performance against target job descriptions.
+              Pick up where you left off. Review your scores, check a new
+              resume, or tailor a saved version.
             </p>
           </div>
           <Button
@@ -122,7 +124,7 @@ export default function Dashboard() {
             data-testid="button-new-analysis"
           >
             <Plus className="w-4 h-4" />
-            New Analysis
+            Check a resume
           </Button>
         </div>
 
@@ -133,7 +135,7 @@ export default function Dashboard() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-medium flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-primary" />
-                Score Trend (Last 10)
+                Your last 10 analysis scores
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -213,8 +215,8 @@ export default function Dashboard() {
               ) : (
                 <div className="h-[200px] flex items-center justify-center text-sm text-muted-foreground bg-muted/20 rounded-md border border-dashed mt-4">
                   {trendData.length === 1
-                    ? "Complete one more analysis to see trends."
-                    : "No data available."}
+                    ? "Complete one more analysis to see your score history."
+                    : "Your score history will appear after your first two analyses."}
                 </div>
               )}
             </CardContent>
@@ -229,7 +231,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">
-                    Average Score
+                    Average analysis score
                   </p>
                   <p className="text-3xl font-mono font-semibold">
                     {analyses?.length ? avgScore : "—"}
@@ -245,7 +247,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">
-                    Total Analyses
+                    Completed analyses
                   </p>
                   <p className="text-3xl font-mono font-semibold">
                     {analyses?.length || 0}
@@ -258,7 +260,7 @@ export default function Dashboard() {
 
         <div className="flex justify-between items-end mb-4 border-b pb-2">
           <h3 className="text-xl font-medium tracking-tight">
-            Recent Analyses
+            Recent analyses
           </h3>
           <Link
             href="/history"
@@ -291,11 +293,12 @@ export default function Dashboard() {
             </div>
             <h3 className="text-xl font-medium mb-2">No analyses yet</h3>
             <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-              Upload your resume and a job description to get started.
+              Compare your resume with a job description to get a score, keyword
+              feedback, and a plan for your next revision.
             </p>
             <Button onClick={() => setLocation("/analyze")} className="gap-2">
               <Plus className="w-4 h-4" />
-              New Analysis
+              Check a resume
             </Button>
           </div>
         ) : (
@@ -348,7 +351,7 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardFooter className="pt-3 border-t mt-auto flex justify-between bg-muted/10 group-hover:bg-primary/5 transition-colors">
                     <span className="text-sm font-medium text-primary flex items-center gap-1">
-                      View Results <ChevronRight className="w-4 h-4" />
+                      View report <ChevronRight className="w-4 h-4" />
                     </span>
                     <Button
                       variant="ghost"
@@ -377,10 +380,10 @@ export default function Dashboard() {
               <PenTool className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-medium mb-1">Resume Builder</h3>
+              <h3 className="text-lg font-medium mb-1">Resume builder</h3>
               <p className="text-muted-foreground text-sm max-w-md">
-                Need to update your resume? Use our built-in tool to create and
-                manage professional resumes.
+                Bring your experience together in a clear, structured resume.
+                Save a version for each role and preview it before exporting.
               </p>
             </div>
           </div>
@@ -390,7 +393,7 @@ export default function Dashboard() {
               onClick={() => setLocation("/resumes/new")}
               className="gap-2 w-full sm:w-auto"
             >
-              <Plus className="w-4 h-4" /> Create Resume
+              <Plus className="w-4 h-4" /> Create a resume
             </Button>
             {resumes && resumes.length > 0 && (
               <Button
@@ -398,7 +401,7 @@ export default function Dashboard() {
                 onClick={() => setLocation("/resumes")}
                 className="gap-2 w-full sm:w-auto"
               >
-                <ExternalLink className="w-4 h-4" /> View Saved (
+                <ExternalLink className="w-4 h-4" /> Saved resumes (
                 {resumes.length})
               </Button>
             )}
@@ -415,7 +418,8 @@ export default function Dashboard() {
             <DialogHeader>
               <DialogTitle>Delete this analysis?</DialogTitle>
               <DialogDescription>
-                This removes the saved score and report permanently.
+                This permanently removes the saved score and report. Your
+                original resume file is not changed.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
