@@ -1,6 +1,18 @@
 # Deploy ResumeForge
 
-The frontend and API now run on one origin. This preserves Clerk session cookies and avoids cross-origin authentication setup. A Node/Docker web host and PostgreSQL are required; GitHub Pages alone cannot run this application.
+The frontend and API run on one origin. This preserves Clerk session cookies and avoids cross-origin authentication setup. Use Vercel Services or a Node/Docker web host with PostgreSQL; GitHub Pages alone cannot run this application.
+
+## Vercel
+
+The root `vercel.json` deploys the Vite frontend and Express API together using Vercel Services (Beta). `/api` routes go to Express; frontend deep links resolve to the SPA. Run Vercel commands from the repository root.
+
+1. Link the project with `vercel link` and verify its owner with `vercel project inspect`.
+2. Connect Clerk and Neon through Vercel Marketplace. The free plans can be selected during provisioning.
+3. Verify `DATABASE_URL`, `CLERK_SECRET_KEY`, and `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` are configured. The frontend build maps the public Clerk key to Vite; the API accepts that same public variable. Secret keys must never use a `VITE_` prefix.
+4. Pull environment variables securely with `vercel env pull .env.production.local --environment production`. Initialize a new empty database with the schema command below after loading that environment. Do not commit environment files.
+5. Deploy with `vercel deploy --prod --skip-domain`, verify the generated URL and `/api/healthz`, then publish the tested build with `vercel promote <deployment-url>`.
+
+Configure a Clerk production instance and verified custom domain before treating authentication as a production launch. Clerk development instances support initial deployment validation. AI remains optional and requires a separately configured provider key.
 
 ## 1. Configure authentication and storage
 

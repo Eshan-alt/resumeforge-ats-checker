@@ -1,0 +1,22 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "frontend": {
+      "root": "artifacts/ats-resume",
+      "framework": "vite",
+      "buildCommand": "VITE_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY pnpm run build",
+      "outputDirectory": "dist/public",
+      "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+    },
+    "backend": {
+      "root": "artifacts/api-server",
+      "framework": "express",
+      "entrypoint": "src/app.ts",
+      "buildCommand": "node -e \"console.log('Express compiled by Vercel')\""
+    }
+  },
+  "rewrites": [
+    { "source": "/api/:path*", "destination": { "service": "backend" } },
+    { "source": "/:path*", "destination": { "service": "frontend" } }
+  ]
+}
