@@ -12,11 +12,11 @@
       "root": "artifacts/api-server",
       "framework": "express",
       "entrypoint": "src/app.ts",
-      "buildCommand": "node -e \"console.log('Express compiled by Vercel')\""
+      "buildCommand": "pnpm run build"
     }
   },
   "rewrites": [
     { "source": "/api/:path*", "destination": { "service": "backend" } },
-    { "source": "/:path*", "destination": { "service": "frontend" } }
+    { "source": "/(.*)", "destination": { "service": "frontend" } }
   ]
 }
